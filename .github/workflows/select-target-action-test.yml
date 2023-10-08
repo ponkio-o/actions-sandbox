@@ -1,0 +1,38 @@
+name: select-target-action
+
+on:
+  pull_request:
+
+jobs:
+  select_target:
+    name: Select target
+    runs-on: ubuntu-latest
+
+    outputs:
+      targets: ${{ steps.sta.outputs.targets }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Select target
+        id: sta
+        uses: ponkio-o/select-target-action@v1.1.0
+
+  plan:
+    needs: [select_target]
+    name: Plan
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        target: ${{fromJson(needs.select_target.outputs.targets)}}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: ls
+        working-directory: ${{ matrix.target }}
+        run: cat test.txt
+...
